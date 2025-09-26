@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useRef } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
 
 const tumorInfo: Record<string, { name: string; description: string; commonSymptoms: string[]; treatmentOverview: string }> = {
   glioma: {
@@ -44,7 +44,7 @@ const tumorInfo: Record<string, { name: string; description: string; commonSympt
 };
 
 
-export default function TumorReport({condition, styleSheet}: {condition: string, styleSheet?: {background: string, foreground: string, primary: string, primary_foreground: string}}) {
+export default function TumorReport({condition, styleSheet, confidence}: {condition: string, styleSheet?: {background: string, foreground: string, primary: string, primary_foreground: string}, confidence: number}) {
     const styles = useMemo(()=>{
         return StyleSheet.create({
                 container:{
@@ -67,10 +67,21 @@ export default function TumorReport({condition, styleSheet}: {condition: string,
                 }
             })
     },[styleSheet])
+
+    const opacity = useRef(new Animated.Value(0)).current;
+    const height = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }, []);
    
     return(
-        <View style={styles.container}>
-            <Text style={styles.subHeading}>Tumor Type</Text>
+        <Animated.View style={{...styles.container, opacity}}>
+            <Text style={styles.subHeading}>Tumor Type | Confidence: {(confidence * 100).toFixed(2)}%</Text>
             <Text style={{
                 fontSize: 30,
                 fontWeight: 800,
@@ -114,7 +125,7 @@ export default function TumorReport({condition, styleSheet}: {condition: string,
                 }}>{tumorInfo[condition].treatmentOverview}</Text>
               </>
             )}
-        </View>
+        </Animated.View>
     )
 }
 

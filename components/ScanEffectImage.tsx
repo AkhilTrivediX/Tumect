@@ -2,13 +2,15 @@ import { Canvas, Image, RuntimeShader, Skia, useImage } from "@shopify/react-nat
 import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 
-const colors = {
-  initial: "25, 115, 255",
-  safe: "99, 255, 110",
-  unsafe: "255, 163, 25",
+const colors: Record<string, string> = {
+  default: "25, 115, 255",
+  notumor: "25, 255, 25",
+  meningioma: "255, 255, 25",
+  pituitary: "255, 136, 25",
+  glioma: "255, 25, 25",
 }
 
-export default function ScanEffectImage({uri, currentClass}: {uri: string, currentClass?: string}) {
+export default function ScanEffectImage({uri, currentClass}: {uri: string, currentClass: string}) {
   const image = useImage(uri);
   const duration = 3000;
   const [progress, setProgress] = useState(0);
@@ -26,7 +28,7 @@ half4 main(float2 xy) {
 
     float canvasHeight = 256.0;
     float waveHeight = 80.0;               
-    half3 scanColor = half3(${currentClass == "default" || !cycleCount ? colors.initial : (currentClass == "notumor"? colors.safe : colors.unsafe)})/255; 
+    half3 scanColor = half3(${currentClass == "default" || !cycleCount ? colors.default : (colors[currentClass])})/255; 
 
     float waveTravel = canvasHeight + waveHeight;
 
@@ -81,7 +83,7 @@ half4 main(float2 xy) {
   },[currentClass])
 
   return (
-    <View style={{ width: 256, height: 256, borderRadius: 15, borderWidth: 2, borderColor: `rgba(${currentClass=="default" || !cycleCount ? colors.initial : (currentClass == "notumor"? colors.safe : colors.unsafe)})`, overflow: 'hidden' }}>
+    <View style={{ width: 256, height: 256, borderRadius: 15, borderWidth: 2, borderColor: `rgba(${currentClass == "default" || !cycleCount ? colors.default : (colors[currentClass])})`, overflow: 'hidden' }}>
       <Canvas style={{ flex: 1, borderRadius: 15  }}>
         {image && (
           <Image image={image} x={0} y={0} width={256} height={256} fit="cover">
